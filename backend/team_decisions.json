@@ -1,0 +1,46 @@
+[
+  {
+    "id": "MEM-001",
+    "decision": "Never cache auth token responses in any storage layer — in-memory dict, Redis, or otherwise. Password resets must immediately invalidate all active tokens.",
+    "reason": "Sept 2025 outage: Redis cache served revoked tokens for 120 minutes after password reset. Users authenticated with invalid credentials.",
+    "module": "auth",
+    "severity": "critical",
+    "who": "alice-sec",
+    "pr": "#42",
+    "tags": ["auth", "caching", "security"],
+    "created_at": "2025-09-14T09:23:00"
+  },
+  {
+    "id": "MEM-002",
+    "decision": "Auth service must use server-side sessions, not stateless JWTs, for all user-facing endpoints.",
+    "reason": "JWT revocation requires a blocklist — without it, tokens stay valid after logout. Server-side sessions give instant invalidation.",
+    "module": "auth",
+    "severity": "high",
+    "who": "bob-arch",
+    "pr": "#89",
+    "tags": ["auth", "jwt", "sessions"],
+    "created_at": "2025-11-02T14:10:00"
+  },
+  {
+    "id": "MEM-003",
+    "decision": "Never concatenate user input directly into SQL queries. Always use parameterized queries or the ORM.",
+    "reason": "Security audit Q4 2025 flagged 3 endpoints with SQL injection risk.",
+    "module": "database",
+    "severity": "critical",
+    "who": "alice-sec",
+    "pr": "#103",
+    "tags": ["database", "security", "sql"],
+    "created_at": "2025-12-01T11:00:00"
+  },
+  {
+    "id": "MEM-004",
+    "decision": "All async background jobs must go through the task queue (Celery). No fire-and-forget threads.",
+    "reason": "Untracked threads caused silent failures in the email service — jobs died with no logs.",
+    "module": "background-jobs",
+    "severity": "medium",
+    "who": "dev-carlos",
+    "pr": "#118",
+    "tags": ["async", "celery", "reliability"],
+    "created_at": "2026-01-15T09:00:00"
+  }
+]
