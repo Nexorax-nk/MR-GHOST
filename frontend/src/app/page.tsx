@@ -6,7 +6,7 @@ import { GhostComment } from '@/components/GhostComment';
 import { AskGhost } from '@/components/AskGhost';
 import { 
   GitPullRequest, Search, MessageSquare, GitCommit, CheckSquare, FileCode, Check, ChevronDown,
-  Menu, Plus, Bell, CircleDot, PlayCircle, Layout, BookOpen, Shield, Activity, Settings, Code, GitMerge
+  Menu, Plus, Bell, CircleDot, PlayCircle, Layout, BookOpen, Shield, Activity, Settings, Code, GitMerge, XCircle, History, Copy
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -17,6 +17,22 @@ export default function PRPage() {
   const [activeTab, setActiveTab] = useState('conversation');
   const [isMerged, setIsMerged] = useState(false);
   const [analyzingStep, setAnalyzingStep] = useState<string | null>(null);
+  const [showCodeDropdown, setShowCodeDropdown] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editContent, setEditContent] = useState(`import os
+import hashlib
+
+token_cache = {}
+
+def get_auth_token(user_id: str) -> str:
+    # Check cache first for performance
+    if user_id in token_cache:
+        return token_cache[user_id]
+        
+    # Generate new if missing
+    token = generate_token(user_id)
+    token_cache[user_id] = token
+    return token`);
 
   const handleAnalyze = async () => {
     setAnalyzing(true);
@@ -154,9 +170,44 @@ export default function PRPage() {
           <h1 className="text-3xl font-normal text-gray-100 flex items-center gap-2">
             Add user token caching <span className="text-gray-500 font-light">#142</span>
           </h1>
-          <div className="flex gap-2">
-            <button className="bg-[#21262d] border border-[#30363d] rounded-md px-3 py-1 text-sm font-medium text-gray-300 hover:bg-[#30363d] transition-colors">Edit</button>
-            <button className="bg-[#21262d] border border-[#30363d] rounded-md px-3 py-1 text-sm font-medium text-gray-300 hover:bg-[#30363d] transition-colors">Code</button>
+          <div className="flex gap-2 relative">
+            <button onClick={() => setIsEditModalOpen(true)} className="bg-[#21262d] border border-[#30363d] rounded-md px-3 py-1 text-sm font-medium text-gray-300 hover:bg-[#30363d] transition-colors">Edit</button>
+            <button 
+              onClick={() => setShowCodeDropdown(!showCodeDropdown)}
+              className="bg-[#21262d] border border-[#30363d] rounded-md px-3 py-1 text-sm font-medium text-gray-300 hover:bg-[#30363d] transition-colors flex items-center gap-1"
+            >
+              <Code className="w-4 h-4" /> Code <ChevronDown className="w-4 h-4 ml-1" />
+            </button>
+            
+            {showCodeDropdown && (
+              <div className="absolute top-10 left-12 w-[350px] bg-[#161b22] border border-[#30363d] rounded-md shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                <div className="p-3 border-b border-[#30363d]">
+                  <div className="flex items-center gap-2 mb-2 font-semibold text-gray-200 text-sm">
+                    <Code className="w-4 h-4" /> Clone
+                  </div>
+                  <div className="flex rounded-md overflow-hidden border border-[#30363d] bg-[#0d1117] text-sm mb-3">
+                    <button className="px-3 py-1.5 bg-[#21262d] border-r border-[#30363d] text-gray-200 font-medium">HTTPS</button>
+                    <button className="px-3 py-1.5 text-gray-400 hover:text-gray-200">SSH</button>
+                    <button className="px-3 py-1.5 text-gray-400 hover:text-gray-200">GitHub CLI</button>
+                  </div>
+                  <div className="flex bg-[#0d1117] border border-[#30363d] rounded-md overflow-hidden relative">
+                    <input type="text" readOnly value="https://github.com/Nexorax-nk/MR-GHOST.git" className="w-full bg-transparent px-3 py-1.5 text-sm text-gray-300 outline-none" />
+                    <button onClick={() => {toast.success("Copied to clipboard!"); setShowCodeDropdown(false);}} className="p-1.5 bg-[#21262d] border-l border-[#30363d] text-gray-400 hover:text-gray-200">
+                      <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z"></path><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 15.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z"></path></svg>
+                    </button>
+                  </div>
+                </div>
+                <div className="p-3">
+                  <button className="w-full text-left px-3 py-1.5 text-sm text-gray-300 hover:bg-[#21262d] hover:text-white rounded-md transition-colors flex items-center gap-2">
+                    <FileCode className="w-4 h-4" /> Open with GitHub Desktop
+                  </button>
+                  <button className="w-full text-left px-3 py-1.5 text-sm text-gray-300 hover:bg-[#21262d] hover:text-white rounded-md transition-colors flex items-center gap-2">
+                    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor"><path d="M2 1.75C2 .784 2.784 0 3.75 0h8.5C13.216 0 14 .784 14 1.75v12.5A1.75 1.75 0 0 1 12.25 16h-8.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25V1.75a.25.25 0 0 0-.25-.25h-8.5ZM4 4.5h8v1H4v-1Zm0 3h8v1H4v-1Zm0 3h8v1H4v-1Z"></path></svg> Download ZIP
+                  </button>
+                </div>
+              </div>
+            )}
+
             <Link href="/memory" className="bg-[#238636] text-white border border-[#2ea043] rounded-md px-3 py-1 text-sm font-medium hover:bg-[#2ea043] transition-colors flex items-center gap-1.5 ml-2">
               <Search className="w-4 h-4" /> Memory Bank
             </Link>
@@ -519,6 +570,121 @@ export default function PRPage() {
           </div>
         )}
       </div>
+
+      {/* Edit Code Modal (Full Screen GitHub File View) */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-[#0d1117] z-[100] flex flex-col overflow-hidden text-sm animate-in fade-in duration-200">
+          
+          {/* Top Header */}
+          <div className="bg-[#010409] border-b border-[#30363d] px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-white transition-colors bg-[#21262d] border border-[#30363d] p-1.5 rounded-md">
+                 <XCircle className="w-4 h-4" />
+              </button>
+              <div className="flex items-center gap-3">
+                <div className="bg-[#21262d] border border-[#30363d] rounded-md px-3 py-1.5 flex items-center gap-2 text-gray-300 font-medium text-xs cursor-pointer hover:bg-[#30363d] transition-colors">
+                  <GitCommit className="w-3.5 h-3.5" /> feature/token-cache <ChevronDown className="w-3.5 h-3.5" />
+                </div>
+                <div className="text-gray-200 text-sm font-semibold">
+                  MR-GHOST <span className="text-gray-500 mx-1 font-normal">/</span> auth <span className="text-gray-500 mx-1 font-normal">/</span> token.py
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-2">
+               <div className="flex items-center bg-[#0d1117] border border-[#30363d] rounded-md px-2 py-1 w-[250px] text-gray-400">
+                  <Search className="w-4 h-4 mr-2" />
+                  <input type="text" placeholder="Go to file" className="bg-transparent border-none outline-none w-full text-xs text-gray-200" />
+                  <div className="border border-[#30363d] rounded px-1 text-[10px] ml-2">T</div>
+               </div>
+            </div>
+          </div>
+
+          {/* Commit Info */}
+          <div className="px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <img src="https://github.com/identicons/dev-carlos.png" className="w-6 h-6 rounded-full border border-[#30363d]" />
+              <span className="font-semibold text-gray-200">dev-carlos</span>
+              <span className="text-gray-400">Add in-memory token cache for performance</span>
+            </div>
+            <div className="flex items-center gap-4 text-gray-400 text-xs">
+              <span className="font-mono text-blue-400 hover:underline cursor-pointer">8f92b41</span>
+              <span>2 hours ago</span>
+              <span className="flex items-center gap-1 hover:text-blue-400 cursor-pointer font-medium"><History className="w-4 h-4" /> History</span>
+            </div>
+          </div>
+
+          <div className="flex-1 flex overflow-hidden px-6 pb-6 gap-6">
+            
+            {/* Main Code Area */}
+            <div className="flex-1 border border-[#30363d] rounded-md bg-[#0d1117] flex flex-col overflow-hidden shadow-sm">
+              {/* Toolbar */}
+              <div className="bg-[#0d1117] border-b border-[#30363d] p-2 flex items-center justify-between rounded-t-md">
+                <div className="flex items-center gap-4 pl-2">
+                  <div className="flex rounded-md overflow-hidden border border-[#30363d]">
+                    <button className="bg-[#21262d] text-gray-200 px-3 py-1 font-medium text-xs">Code</button>
+                    <button className="text-gray-400 hover:text-gray-200 px-3 py-1 font-medium text-xs border-l border-[#30363d] hover:bg-[#21262d]">Blame</button>
+                  </div>
+                  <span className="text-gray-500 text-xs">14 lines (12 loc) · 324 Bytes</span>
+                </div>
+                <div className="flex gap-2">
+                  <div className="flex rounded-md overflow-hidden border border-[#30363d]">
+                    <button className="text-gray-400 hover:text-gray-200 px-3 py-1 font-medium text-xs hover:bg-[#21262d]">Raw</button>
+                    <button className="text-gray-400 hover:text-gray-200 px-3 py-1 font-medium text-xs border-l border-[#30363d] hover:bg-[#21262d]"><Copy className="w-3.5 h-3.5" /></button>
+                    <button className="text-gray-400 hover:text-gray-200 px-3 py-1 font-medium text-xs border-l border-[#30363d] hover:bg-[#21262d]"><FileCode className="w-3.5 h-3.5" /></button>
+                  </div>
+                  <button className="bg-[#21262d] border border-[#30363d] rounded-md px-2 py-1 text-gray-300 hover:bg-[#30363d] transition-colors"><Settings className="w-3.5 h-3.5" /></button>
+                </div>
+              </div>
+              
+              {/* Editor wrapper with line numbers */}
+              <div className="flex-1 flex overflow-auto bg-[#0d1117]">
+                <div className="w-14 flex-shrink-0 border-r border-[#30363d] text-right pr-4 pt-4 text-xs text-gray-500 font-mono leading-6 select-none bg-[#0d1117]">
+                  {editContent.split('\n').map((_, i) => <div key={i}>{i + 1}</div>)}
+                </div>
+                <textarea 
+                  value={editContent}
+                  onChange={(e) => setEditContent(e.target.value)}
+                  className="flex-1 bg-[#0d1117] text-gray-300 font-mono text-[13px] p-4 leading-6 outline-none resize-none"
+                  spellCheck={false}
+                />
+              </div>
+              
+              <div className="p-3 border-t border-[#30363d] bg-[#161b22] flex justify-between items-center">
+                 <span className="text-xs text-gray-500 flex items-center gap-2"><GitCommit className="w-4 h-4"/> Committing directly to feature/token-cache</span>
+                 <button onClick={() => {toast.success("Changes committed directly to feature/token-cache"); setIsEditModalOpen(false);}} className="px-4 py-1.5 text-xs font-semibold text-white bg-[#238636] hover:bg-[#2ea043] rounded-md border border-[#2ea043] transition-colors shadow-sm">Commit changes...</button>
+              </div>
+            </div>
+
+            {/* Right Sidebar - Symbols */}
+            <div className="w-[300px] border border-[#30363d] rounded-md bg-[#0d1117] flex-col overflow-hidden shadow-sm hidden xl:flex">
+              <div className="bg-[#161b22] border-b border-[#30363d] p-3 flex justify-between items-center rounded-t-md">
+                <span className="font-semibold text-gray-200 text-sm">Symbols</span>
+                <button className="text-gray-500 hover:text-gray-300"><XCircle className="w-4 h-4" /></button>
+              </div>
+              <div className="p-4">
+                <p className="text-xs text-gray-500 mb-4 leading-relaxed">
+                  Find definitions and references for functions and other symbols in this file by clicking a symbol below or in the code.
+                </p>
+                <div className="flex items-center bg-[#010409] border border-[#30363d] rounded-md px-2 py-1.5 mb-4 focus-within:border-blue-500 transition-colors">
+                  <Menu className="w-4 h-4 text-gray-500 mr-2" />
+                  <input type="text" placeholder="Filter symbols" className="bg-transparent border-none outline-none w-full text-xs text-gray-300" />
+                  <div className="border border-[#30363d] rounded px-1 text-[10px] text-gray-500">R</div>
+                </div>
+                <div className="flex flex-col gap-4 mt-2">
+                  <div className="flex items-center gap-3 text-sm text-gray-300 hover:text-blue-400 cursor-pointer transition-colors">
+                    <span className="text-[#a371f7] text-xs font-mono">func</span> get_auth_token
+                  </div>
+                  <div className="flex items-center gap-3 text-sm text-gray-300 hover:text-blue-400 cursor-pointer transition-colors">
+                    <span className="text-blue-400 text-xs font-mono">var</span> token_cache
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
